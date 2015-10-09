@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+        <meta charset="utf-8">
+        <title>Opsee Debug</title>
+        <link rel="stylesheet" href="pure-nr-min.css">
+        <style>
+        .pure-g {
+                width: auto;
+                margin: 0 20px;
+        }
+        .pure-table th {
+                text-align: right;
+        }
+        </style>
+</head>
+<body>
+<script>
+!(function() {
+        function getParam(name) {
+                var value  = null;
+                var search = location.search;
+                var params = search.substr(1).split('&');
+                params.forEach(function(p) {
+                        var kv = p.split('=');
+                        if (kv[0] === name) {
+                                value = kv[1];
+                        }
+                });
+                return value;
+        }
+
+        var token = getParam("token");
+        if (!token) {
+                console.error("token is not set in the query string")
+                return;
+        }
+
+        var httpRequest = new XMLHttpRequest();
+        httpRequest.onreadystatechange = function() {
+                if (httpRequest.readyState === 1) {
+                        httpRequest.setRequestHeader("Authorization", "Bearer " + token);
+                } else if (httpRequest.readyState === 4) {
+                        var responseTarget = document.body;
+                        responseTarget.innerHTML = httpRequest.responseText;
+                }
+        };
+        httpRequest.open('GET', '/debug', true);
+        httpRequest.send(null);
+}());
+</script>
+</body>
+</html>

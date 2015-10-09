@@ -1,0 +1,49 @@
+<div class="pure-g">
+        <div class="pure-u-1">
+                <h1>Opsee Debug</h1>
+                <h2>Headers</h2>
+                <table class="pure-table">
+                {% for k, v in pairs(headers) do %}
+                        <tr>
+                                <th>{{k}}</th>
+                                <td>{{v}}</td>
+                        </tr>
+                {% end %}
+                </table>
+                <h2>Token</h2>
+                <table class="pure-table">
+                        <tr>
+                                <th>header</th>
+                                <td>
+                                        {% for k, v in pairs(token.header) do %}
+                                        <strong>{{k}}:</strong> {{v}}<br>
+                                        {% end %}
+                                </td>
+                        </tr>
+                        <tr>
+                                <th>key</th>
+                                <td>{{token.key}}</td>
+                        </tr>
+                        <tr>
+                                <th>iv</th>
+                                <td>{{token.iv}}</td>
+                        </tr>
+                        <tr>
+                                <th>ciphertext</th>
+                                <td>{{token.ciphertext}}</td>
+                        </tr>
+                        <tr>
+                                <th>tag</th>
+                                <td>{{token.tag}}</td>
+                        </tr>
+                        <tr>
+                                <th>cek</th>
+                                <td>{{cek}}</td>
+                        </tr>
+                        <tr>
+                                <th>plaintext</th>
+                                <td>{{plaintext}}</td>
+                        </tr>
+                </table>
+        </div>
+</div>
