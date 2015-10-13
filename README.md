@@ -1,4 +1,3 @@
-![motorn](./logo.png)
 ![spooky rat rod](./motorn.jpg)
 
 MotorN

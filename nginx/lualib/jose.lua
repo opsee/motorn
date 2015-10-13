@@ -22,7 +22,7 @@ local function parse(token_str)
     '^([^%.]+)%.([^%.]+)%.([^%.]+).([^%.]+).([^%.]+)$'
   )
 
-  if not header and key and iv and ciphertext and tag then
+  if not (header and key and iv and ciphertext and tag) then
     return nil
   end
 
@@ -57,9 +57,9 @@ function decode_part(b64_str, json_decode)
   return data
 end
 
-function unwrap(secretkey, enckey, header)
-  if not header.alg and header.enc and header.iv and header.tag then
-    ngx.log(ngx.WARN, "missing things in header")
+local function unwrap(secretkey, enckey, header)
+  if not (header.alg and header.enc and header.iv and header.tag) then
+    ngx.log(ngx.WARN, "missing things in JOSE header")
     return nil
   end
 
@@ -82,6 +82,10 @@ function unwrap(secretkey, enckey, header)
 
   local aead = aes.new(secretkey, "gcm", iv)
   local cek, authtag = aead:decrypt(enckey)
+  if not authtag then
+    ngx.log(ngx.WARN, "missing tag in unwrap")
+    return nil
+  end
 
   -- strings < 32 bytes are interned in lua, so comparison is pretty much constant time
   if authtag ~= tag then
@@ -92,7 +96,7 @@ function unwrap(secretkey, enckey, header)
   return cek
 end
 
-function decrypt(aad, cek, iv, ciphertext, tag)
+local function decrypt(aad, cek, iv, ciphertext, tag)
   local keysize = string.len(cek)
   if keysize ~= 16 then
     ngx.log(ngx.WARN, "wrong size cek bytes: " .. keysize)
@@ -101,6 +105,10 @@ function decrypt(aad, cek, iv, ciphertext, tag)
 
   local aead = aes.new(cek, "gcm", iv, aad)
   local plaintext, authtag = aead:decrypt(ciphertext)
+  if not authtag then
+    ngx.log(ngx.WARN, "missing tag in decrypt")
+    return nil
+  end
 
   -- strings < 32 bytes are interned in lua, so comparison is pretty much constant time
   if authtag ~= tag then
@@ -111,21 +119,55 @@ function decrypt(aad, cek, iv, ciphertext, tag)
   return plaintext
 end
 
+local function verify(claims)
+  if not (claims.exp or claims.nbf) then
+    ngx.log(ngx.WARN, "no expiration or not-before given in claims")
+    return false
+  end
+
+  local now = ngx.now()
+
+  if type(claims.exp) == "number" and claims.exp < now then
+    ngx.log(ngx.WARN, "claims expired on: " .. ngx.http_time(exp))
+    return false
+  elseif type(nbf) == "number" and nbf > now then
+    ngx.log(ngx.WARN, "claims not before: " .. ngx.http_time(nbf))
+    return false
+  end
+
+  return true
+end
+
+local jwt_claims = {
+  exp = true,
+  nbf = true,
+  iat = true,
+  sub = true
+}
+
 local M = {}
 
 function M.auth_by_header()
   local auth_header = ngx.var.http_Authorization
 
   if auth_header == nil then
-      ngx.log(ngx.WARN, "No Authorization header")
-      ngx.exit(ngx.HTTP_UNAUTHORIZED)
+    ngx.log(ngx.WARN, "No Authorization header")
+    ngx.exit(ngx.HTTP_UNAUTHORIZED)
+    return
   end
 
-  ngx.log(ngx.INFO, "Authorization: " .. auth_header)
-
   local _, _, token_string = string.find(auth_header, "Bearer%s+(.+)")
+  local token = M.auth(token_string)
 
-  return M.auth(token_string)
+  if not token then
+    ngx.log(ngx.WARN, "Token unauthorized")
+    ngx.exit(ngx.HTTP_UNAUTHORIZED)
+    return
+  end
+
+  ngx.req.set_header("Opsee-Session", M.header_encode_token(token))
+
+  return token
 end
 
 function M.auth(token_string)
@@ -153,11 +195,29 @@ function M.auth(token_string)
     return nil
   end
 
-  return {
-    token = token,
-    cek = cek,
-    plaintext = plaintext
-  }
+  -- verify the claims contained within
+  claims = cjson.decode(plaintext)
+  if not claims then
+    ngx.log(ngx.WARN, "claims could not be parsed")
+    return nil
+  end
+
+  if verify(claims) then
+    return claims
+  end
+
+  return nil
+end
+
+function M.header_encode_token(token)
+  local filtered = {}
+  for k, v in pairs(token) do
+    if not jwt_claims[k] then
+      filtered[k] = v
+    end
+  end
+
+  return ngx.encode_base64(cjson.encode(token))
 end
 
 return M

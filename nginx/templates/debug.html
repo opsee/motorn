@@ -10,40 +10,14 @@
                         </tr>
                 {% end %}
                 </table>
-                <h2>Token</h2>
+                <h2>User</h2>
                 <table class="pure-table">
+                {% for k, v in pairs(user) do %}
                         <tr>
-                                <th>header</th>
-                                <td>
-                                        {% for k, v in pairs(token.header) do %}
-                                        <strong>{{k}}:</strong> {{v}}<br>
-                                        {% end %}
-                                </td>
+                                <th>{{k}}</th>
+                                <td>{{v}}</td>
                         </tr>
-                        <tr>
-                                <th>key</th>
-                                <td>{{token.key}}</td>
-                        </tr>
-                        <tr>
-                                <th>iv</th>
-                                <td>{{token.iv}}</td>
-                        </tr>
-                        <tr>
-                                <th>ciphertext</th>
-                                <td>{{token.ciphertext}}</td>
-                        </tr>
-                        <tr>
-                                <th>tag</th>
-                                <td>{{token.tag}}</td>
-                        </tr>
-                        <tr>
-                                <th>cek</th>
-                                <td>{{cek}}</td>
-                        </tr>
-                        <tr>
-                                <th>plaintext</th>
-                                <td>{{plaintext}}</td>
-                        </tr>
+                {% end %}
                 </table>
         </div>
 </div>
