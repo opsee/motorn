@@ -148,7 +148,7 @@ local jwt_claims = {
 local M = {}
 
 function M.auth_by_header()
-  local auth_header = ngx.var.http_Authorization
+  local auth_header = ngx.var.http_authorization
 
   if auth_header == nil then
     ngx.log(ngx.WARN, "No Authorization header")
@@ -165,7 +165,7 @@ function M.auth_by_header()
     return
   end
 
-  ngx.req.set_header("Opsee-Session", M.header_encode_token(token))
+  ngx.req.set_header("Authorization", "Basic " .. M.header_encode_token(token))
 
   return token
 end

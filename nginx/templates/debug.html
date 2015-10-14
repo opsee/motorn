@@ -19,5 +19,14 @@
                         </tr>
                 {% end %}
                 </table>
+                <h2>Routes</h2>
+                <table class="pure-table">
+                {% for k, v in pairs(routes) do %}
+                        <tr>
+                                <th>{{k}}</th>
+                                <td>{{v}}</td>
+                        </tr>
+                {% end %}
+                </table>
         </div>
 </div>

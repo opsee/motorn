@@ -52,7 +52,7 @@ RUN echo "==> Installing openresty..." \
  && ln -sf $OPENRESTY_PREFIX/luajit/bin/luajit-* $OPENRESTY_PREFIX/luajit/bin/lua \
  && ln -sf $OPENRESTY_PREFIX/luajit/bin/luajit-* /usr/local/bin/lua
 
-# trying out nettle
+# nettle for aes-gcm
 RUN cd /tmp && git clone https://github.com/bungle/lua-resty-nettle.git \
   && mv lua-resty-nettle/lib/resty/* "${OPENRESTY_PREFIX}/lualib/resty/" \
   && rm -rf /tmp/lua-resty-nettle
@@ -66,14 +66,15 @@ RUN echo "==> Installing luarocks..." \
     --with-lua-lib="${OPENRESTY_PREFIX}/lualib" \
  && make && make install
 
-RUN sudo luarocks install lua-resty-template
+RUN sudo luarocks install lua-resty-template \
+ && sudo luarocks install lua-resty-http
 
 # slim down
 RUN echo "==> Cleaning up..." \
  && apk del \
     make gcc musl-dev pcre-dev openssl-dev zlib-dev ncurses-dev readline-dev curl perl sudo git \
  && apk add \
-    libpcrecpp libpcre16 libpcre32 openssl libssl1.0 pcre libgcc libstdc++ \
+    libpcrecpp libpcre16 libpcre32 openssl libssl1.0 pcre libgcc libstdc++ ca-certificates \
  && rm -rf /var/cache/apk/* \
  && rm -rf /root/ngx_openresty \
  && rm -rf /tmp/luarocks-*
@@ -81,6 +82,7 @@ RUN echo "==> Cleaning up..." \
 WORKDIR $NGINX_PREFIX/
 
 ENV JWE_KEY_FILE vape.test.key
+ENV UPSTREAMS ""
 
 RUN rm -rf conf/* html/*
 COPY nginx $NGINX_PREFIX/
