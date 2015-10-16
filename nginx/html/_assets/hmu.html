@@ -3,7 +3,7 @@
 <head>
         <meta charset="utf-8">
         <title>Opsee Debug</title>
-        <link rel="stylesheet" href="pure-nr-min.css">
+        <link rel="stylesheet" href="/_assets/pure-nr-min.css">
         <style>
         .pure-g {
                 width: auto;
@@ -45,7 +45,7 @@
                         responseTarget.innerHTML = httpRequest.responseText;
                 }
         };
-        httpRequest.open('GET', '/debug', true);
+        httpRequest.open('GET', '/_debug', true);
         httpRequest.send(null);
 }());
 </script>
