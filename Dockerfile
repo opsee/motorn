@@ -70,10 +70,11 @@ RUN sudo luarocks install lua-resty-template \
  && sudo luarocks install lua-resty-http
 
 # opsee stuff
-RUN curl -Lo /opt/bin/migrate https://s3-us-west-2.amazonaws.com/opsee-releases/go/migrate/migrate-linux-amd64 && \
-    chmod 755 /opt/bin/migrate
+RUN mkdir -p /opt/bin
 RUN curl -Lo /opt/bin/ec2-env https://s3-us-west-2.amazonaws.com/opsee-releases/go/ec2-env/ec2-env && \
     chmod 755 /opt/bin/ec2-env
+RUN curl -Lo /opt/bin/s3kms https://s3-us-west-2.amazonaws.com/opsee-releases/go/vinz-clortho/s3kms-linux-amd64 && \
+    chmod 755 /opt/bin/s3kms
 
 # slim down
 RUN echo "==> Cleaning up..." \
