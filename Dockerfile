@@ -69,6 +69,12 @@ RUN echo "==> Installing luarocks..." \
 RUN sudo luarocks install lua-resty-template \
  && sudo luarocks install lua-resty-http
 
+# opsee stuff
+RUN curl -Lo /opt/bin/migrate https://s3-us-west-2.amazonaws.com/opsee-releases/go/migrate/migrate-linux-amd64 && \
+    chmod 755 /opt/bin/migrate
+RUN curl -Lo /opt/bin/ec2-env https://s3-us-west-2.amazonaws.com/opsee-releases/go/ec2-env/ec2-env && \
+    chmod 755 /opt/bin/ec2-env
+
 # slim down
 RUN echo "==> Cleaning up..." \
  && apk del \
@@ -83,10 +89,18 @@ WORKDIR $NGINX_PREFIX/
 
 ENV JWE_KEY_FILE vape.test.key
 ENV UPSTREAMS ""
+ENV RESOLVER "8.8.8.8"
+ENV AWS_ACCESS_KEY_ID=""
+ENV AWS_SECRET_ACCESS_KEY=""
+ENV AWS_DEFAULT_REGION=""
+ENV AWS_INSTANCE_ID=""
+ENV AWS_SESSION_TOKEN=""
+ENV APPENV="motornenv"
 
+COPY run.sh $NGINX_PREFIX/
 RUN rm -rf conf/* html/*
 COPY nginx $NGINX_PREFIX/
 
-EXPOSE 80
+EXPOSE 8083
 
 CMD ["nginx", "-g", "daemon off; error_log /dev/stderr info;"]
