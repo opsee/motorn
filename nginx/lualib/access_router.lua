@@ -1,5 +1,9 @@
 -- firstly, authorize the user
-local user = jose.auth_by_header()
+if ngx.var.request_method == "OPTIONS" then
+  local user = true
+else
+  local user = jose.auth_by_header()
+end
 
 -- capture the first part of the request path
 local captures, err = ngx.re.match(ngx.var.uri, "^/([^/]+)/?.*$", "ajo")

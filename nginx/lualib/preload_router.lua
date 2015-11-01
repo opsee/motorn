@@ -30,7 +30,7 @@ for upstream in upstream_list:gmatch('[^,]+') do
   })
 
   if not res then
-    ngx.log(ngx.ERR, "could not get upstream swagger: " .. err)
+    ngx.log(ngx.ERR, "could not get upstream swagger. upstream: " .. upstream .. " error: " .. err)
   end
 
   local s, err, _ = swagger:set(upstream, res.body)

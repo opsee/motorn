@@ -1,10 +1,10 @@
 all: dev
 
 build:
-	docker build -t quay.io/opsee/motorn .
+	docker build -t quay.io/opsee/motorn:latest .
 
 push: build
-	docker push quay.io/opsee/motorn
+	docker push quay.io/opsee/motorn:latest
 
 dev: build
 	docker run --rm -it \
