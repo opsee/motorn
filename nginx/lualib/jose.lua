@@ -17,6 +17,10 @@ local secret = read_file(keyfile)
 assert(secret ~= nil, "Not able to read the secret key file: " .. keyfile .. ". Does it exist?")
 
 local function parse(token_str)
+  if not token_str then
+    return nil
+  end
+
   local header, key, iv, ciphertext, tag = string.match(
     token_str,
     '^([^%.]+)%.([^%.]+)%.([^%.]+).([^%.]+).([^%.]+)$'
