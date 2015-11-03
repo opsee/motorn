@@ -31,11 +31,13 @@ for upstream in upstream_list:gmatch('[^,]+') do
 
   if not res then
     ngx.log(ngx.ERR, "could not get upstream swagger. upstream: " .. upstream .. " error: " .. err)
+    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
   end
 
   local s, err, _ = swagger:set(upstream, res.body)
   if not s then
     ngx.log(ngx.ERR, "could not set swagger in cache" .. err)
+    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
   end
 
   local swagtable = cjson.decode(res.body)
