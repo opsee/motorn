@@ -128,10 +128,10 @@ local function verify(claims)
   local now = ngx.now()
 
   if type(claims.exp) == "number" and claims.exp < now then
-    ngx.log(ngx.WARN, "claims expired on: " .. ngx.http_time(exp))
+    ngx.log(ngx.WARN, "claims expired on: " .. ngx.http_time(claims.exp))
     return false
-  elseif type(nbf) == "number" and nbf > now then
-    ngx.log(ngx.WARN, "claims not before: " .. ngx.http_time(nbf))
+  elseif type(claims.nbf) == "number" and claims.nbf > now then
+    ngx.log(ngx.WARN, "claims not before: " .. ngx.http_time(claims.nbf))
     return false
   end
 
