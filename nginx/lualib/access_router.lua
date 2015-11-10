@@ -1,3 +1,5 @@
+local resolver = require("resolver")
+
 -- firstly, authorize the user
 if ngx.var.request_method == "OPTIONS" then
   local user = true
@@ -29,5 +31,20 @@ if target == nil then
   end
 end
 
--- set the upstream target
-ngx.var.target = target
+-- resolve the upstream address
+local captures, err = ngx.re.match(target, "^https://([^/]+)")
+local hostname = captures[1]
+if (err ~= nil or hostname == nil) then
+  ngx.log(ngx.ERR, "no match for upstream host target: " .. target)
+  ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+end
+
+local upstream, err = resolver.query(hostname)
+if err then
+    ngx.log(ngx.ERR, "unable to resolve upstream: " .. err)
+    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+end
+
+-- set the upstream target and hostname
+ngx.var.target = "https://" .. upstream
+ngx.var.ssl_name = hostname
