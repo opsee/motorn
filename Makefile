@@ -10,6 +10,7 @@ dev: build
 	docker run --rm -it \
 	  --name motorn \
 		-e JWE_KEY_FILE=vape.test.key \
-		-e UPSTREAMS=https://api-beta.opsee.co,https://events.opsee.co \
+		-e UPSTREAMS=https://bartnet.in.opsee.com,https://beavis.in.opsee.com \
+		-e STREAMING_UPSTREAMS=https://bartnet.in.opsee.com \
 	  -p 8083:8083 \
 	  quay.io/opsee/motorn
