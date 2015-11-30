@@ -19,4 +19,6 @@ end
 
 -- set the upstream target and hostname
 ngx.var.target = "https://" .. upstream
+ngx.log(ngx.INFO, "streaming upstream target: " .. ngx.var.target)
 ngx.var.ssl_name = hostname
+ngx.log(ngx.INFO, "streaming upstream ssl_name: " .. ngx.var.ssl_name)
