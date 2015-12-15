@@ -59,25 +59,27 @@ for upstream in upstream_list:gmatch('[^,]+') do
 
   if not response then
     ngx.log(ngx.ERR, "could not get upstream swagger. upstream: " .. upstream .. " error: " .. err)
-    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+    goto continue
   end
-
-  ngx.log(ngx.ERR, "could not get upstream swagger. upstream: " .. upstream .. " status: " .. tostring(response.status))
 
   if not response.has_body then
     ngx.log(ngx.ERR, "could not get upstream swagger. upstream: " .. upstream .. " status: " .. tostring(response.status))
-    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+    goto continue
   end
 
   local body = response:read_body()
+  local ok, swagtable = pcall(function () return cjson.decode(body) end)
+  if not ok then
+    ngx.log(ngx.ERR, "upstream swagger is not valid json. upstream: " .. upstream .. " status: " .. tostring(response.status))
+    goto continue
+  end
 
   local s, err, _ = swagger:set(upstream, body)
   if not s then
     ngx.log(ngx.ERR, "could not set swagger in cache" .. err)
-    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+    goto continue
   end
 
-  local swagtable = cjson.decode(body)
   for p, _ in pairs(swagtable.paths) do
     local path = p:match('^/([^/]+)/?.*$')
     if path then
@@ -89,6 +91,7 @@ for upstream in upstream_list:gmatch('[^,]+') do
   end
 
   httpc:close()
+  ::continue::
 end
 
 api_routes:set("_loaded", "1")
