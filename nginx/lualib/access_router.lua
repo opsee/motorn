@@ -7,8 +7,8 @@ if (err == nil and cors ~= nil) then
   ngx.header["Access-Control-Max-Age"] = "1728000"
   ngx.header["Access-Control-Allow-Headers"] = "Accept-Encoding,Authorization,Content-Type"
   ngx.header["Access-Control-Allow-Origin"] = ngx.var.http_origin
-  -- workaround for bartnet
-  ngx.req.set_header("Origin", "https://app.opsee.com")
+  -- work around bartnet
+  ngx.req.clear_header("Origin")
 end
 
 -- firstly, authorize the user
