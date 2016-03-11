@@ -1,7 +1,7 @@
 local resolver = require("resolver")
 
 local origin = ngx.var.http_origin or ""
-local cors, err = ngx.re.match(origin, "^https?://(\\w+\\.)?(opsy\\.co|opsee\\.com?|localhost(:\\d+)|coreys-mbp-8(:\\d+))$", "ajo")
+local cors, err = ngx.re.match(origin, "^https?://(.+)?(opsy\\.co|opsee\\.com?|localhost(:\\d+)|coreys-mbp-8(:\\d+))$", "ajo")
 if (err == nil and cors ~= nil) then
   ngx.header["Access-Control-Allow-Methods"] = "GET,POST,PUT,PATCH,DELETE,HEAD"
   ngx.header["Access-Control-Max-Age"] = "1728000"
