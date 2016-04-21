@@ -1,10 +1,12 @@
+REV ?= latest
+
 all: dev
 
 build:
-	docker build -t quay.io/opsee/motorn:latest .
+	docker build -t quay.io/opsee/motorn:$(REV) .
 
 push: build
-	docker push quay.io/opsee/motorn:latest
+	docker push quay.io/opsee/motorn:$(REV)
 
 dev: build
 	docker run --rm -it \

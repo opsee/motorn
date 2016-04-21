@@ -7,14 +7,16 @@ dependencies:
   cache_directories: []
   override:
     - docker info
+    - docker login -e $DOCKER_EMAIL -u $DOCKER_USERNAME -p $DOCKER_PASSWORD quay.io
 test:
   override:
     # FIXME: add a step to test requests
-    - make build
+    - REV=${CIRCLE_SHA1} make build
+    - docker push quay.io/opsee/motorn:${CIRCLE_SHA1}
 deployment:
   production:
     branch: master
     owner: opsee
     commands:
-      - docker login -e $DOCKER_EMAIL -u $DOCKER_USERNAME -p $DOCKER_PASSWORD quay.io
+      - docker tag -f quay.io/opsee/motorn:$CIRCLE_SHA1 quay.io/opsee/motorn:latest
       - docker push quay.io/opsee/motorn:latest
